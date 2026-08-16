@@ -1,0 +1,12 @@
+Grok Code
+Copyright 2026 The Grok Code contributors
+
+Grok Code is an independent project. It is not affiliated with, endorsed by,
+or an official product of xAI Corp., SpaceXAI, Anthropic, or the Grok Build
+project.
+
+Grok Code integrates with Grok Build (https://github.com/xai-org/grok-build),
+Apache-2.0 licensed, Copyright 2023-2026 SpaceXAI, through Grok Build's
+public command-line and Agent Client Protocol (ACP) interfaces. Grok Code
+does not redistribute Grok Build source code. See
+docs/UPSTREAM_LICENSE_REVIEW.md for the complete license review.
