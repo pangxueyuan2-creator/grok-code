@@ -58,7 +58,25 @@ export function addChange(summary: ChangeSummary, change: FileChange): ChangeSum
   };
 }
 
-/** Normalize a Windows or POSIX path to the repo-relative forward-slash form. */
-export function normalizePath(path: string): string {
-  return path.replace(/\\/g, "/").replace(/^[A-Za-z]:/, "").replace(/^\/ + /, "");
+function canonicalSlashes(path: string): string {
+  return path.replace(/\\/g, "/").replace(/\/+$/, "");
+}
+
+/** Normalize a Windows or POSIX path to a forward-slash form, relative to repoRoot when supplied. */
+export function normalizePath(path: string, repoRoot?: string): string {
+  const normalized = canonicalSlashes(path);
+
+  if (repoRoot !== undefined) {
+    const root = canonicalSlashes(repoRoot);
+    const windowsStyle = /^[A-Za-z]:/.test(normalized) || /^[A-Za-z]:/.test(root);
+    const comparablePath = windowsStyle ? normalized.toLowerCase() : normalized;
+    const comparableRoot = windowsStyle ? root.toLowerCase() : root;
+
+    if (comparablePath === comparableRoot) return "";
+    if (comparablePath.startsWith(`${comparableRoot}/`)) {
+      return normalized.slice(root.length + 1);
+    }
+  }
+
+  return normalized.replace(/^[A-Za-z]:/, "").replace(/^\/+/, "").replace(/^\.\//, "");
 }
