@@ -9,7 +9,7 @@
   "scripts": {
     "build": "pnpm -r build",
     "test": "pnpm -r test",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "pnpm --filter @grok-code/core build && pnpm --filter @grok-code/runtime typecheck",
     "lint": "biome lint packages/core/src packages/runtime/src",
     "format": "biome format --write .",
     "package": "node scripts/package.mjs",
