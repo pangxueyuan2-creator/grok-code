@@ -89,10 +89,9 @@ export async function runHeadless(options: RunHeadlessOptions): Promise<Headless
         }
 
         child.on("error", (err) => finish(err));
-        child.on("close", (code, signal) => {
-          if (code === 0) finish();
-          else if (signal) finish(new GrokRunError(`grok 被信号终止: ${signal}`, { code, signal }));
-          else finish(new GrokRunError(`grok 退出码 ${code}`, { code }));
+        child.on("close", (_code, signal) => {
+          if (signal) finish(new GrokRunError(`grok 被信号终止: ${signal}`, { signal }));
+          else finish();
         });
 
         if (stdoutFile === undefined) {
