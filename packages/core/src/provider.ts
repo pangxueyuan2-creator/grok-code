@@ -53,10 +53,16 @@ function validateBaseUrl(value: string): string {
   try {
     url = new URL(value);
   } catch {
-    throw new Error(`Invalid provider base URL: ${value}`);
+    // Do not echo the raw value: malformed URLs can themselves contain credentials.
+    throw new Error("Invalid provider base URL.");
   }
 
-  const isLoopback = url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "::1";
+  if (url.username || url.password) {
+    throw new Error("Provider base URL must not contain embedded credentials.");
+  }
+
+  const isLoopback =
+    url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "::1";
   if (url.protocol !== "https:" && !(url.protocol === "http:" && isLoopback)) {
     throw new Error("Provider base URL must use HTTPS; HTTP is allowed only for loopback endpoints.");
   }
