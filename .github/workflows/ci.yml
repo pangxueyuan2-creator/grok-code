@@ -35,11 +35,3 @@ jobs:
         run: pnpm test
       - name: Build
         run: pnpm build
-      - name: Package
-        run: pnpm package
-      - name: Upload packaged CLI
-        uses: actions/upload-artifact@v4
-        with:
-          name: grok-code-${{ matrix.os }}
-          path: dist/package/
-          retention-days: 14
