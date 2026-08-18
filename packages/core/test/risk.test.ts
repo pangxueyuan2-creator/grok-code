@@ -4,8 +4,11 @@ import { classifyCommand, classifyTool } from "../src/risk.js";
 describe("command risk classification", () => {
   it("flags destructive system commands as CRITICAL", () => {
     expect(classifyCommand("sudo rm -rf /").level).toBe("CRITICAL");
+    expect(classifyCommand("rm -rf /").level).toBe("CRITICAL");
     expect(classifyCommand("git reset --hard").level).toBe("CRITICAL");
     expect(classifyCommand("git push --force origin main").level).toBe("CRITICAL");
+    expect(classifyCommand("del /s /q C:\\").level).toBe("CRITICAL");
+    expect(classifyCommand("format c:").level).toBe("CRITICAL");
   });
   it("flags deletions as HIGH", () => {
     expect(classifyCommand("rm -rf node_modules").level).toBe("HIGH");
