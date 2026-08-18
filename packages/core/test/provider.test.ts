@@ -55,6 +55,37 @@ describe("provider profiles", () => {
       }),
     ).toThrow(/environment-variable name/);
   });
+
+  it("rejects credentials embedded in provider URLs", () => {
+    expect(() =>
+      createProviderProfile({
+        id: "userinfo-secret",
+        kind: "openai-compatible",
+        model: "model",
+        baseUrl: "https://user:super-secret@example.com/v1",
+        apiKeyEnv: "EXAMPLE_API_KEY",
+      }),
+    ).toThrow(/embedded credentials/);
+  });
+
+  it("does not echo malformed provider URLs in validation errors", () => {
+    const secret = "token-that-must-not-reach-logs";
+    let message = "";
+    try {
+      createProviderProfile({
+        id: "malformed-url",
+        kind: "openai-compatible",
+        model: "model",
+        baseUrl: `https://[${secret}`,
+        apiKeyEnv: "EXAMPLE_API_KEY",
+      });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+
+    expect(message).toMatch(/Invalid provider base URL/);
+    expect(message).not.toContain(secret);
+  });
 });
 
 describe("provider registry", () => {
