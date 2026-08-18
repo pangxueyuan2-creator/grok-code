@@ -46,8 +46,9 @@ export async function runHeadless(options: RunHeadlessOptions): Promise<Headless
     }
   };
 
+  const requestedIoMode = options.ioMode ?? "auto";
   const attempts: Array<"pipe" | "file"> =
-    options.ioMode === "auto" ? ["pipe", "file"] : [options.ioMode];
+    requestedIoMode === "auto" ? ["pipe", "file"] : [requestedIoMode];
 
   let lastSpawnError: unknown;
   for (const mode of attempts) {
@@ -95,7 +96,12 @@ export async function runHeadless(options: RunHeadlessOptions): Promise<Headless
         });
 
         if (stdoutFile === undefined) {
-          const rl = createInterface({ input: child.stdout ?? undefined });
+          const stdout = child.stdout;
+          if (stdout === null) {
+            finish(new GrokRunError("grok pipe 模式没有可读 stdout"));
+            return;
+          }
+          const rl = createInterface({ input: stdout });
           rl.on("line", consume);
         }
       });
