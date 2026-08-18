@@ -11,9 +11,7 @@
     "test": "pnpm -r test",
     "typecheck": "pnpm --filter @grok-code/core build && pnpm --filter @grok-code/runtime typecheck",
     "lint": "biome lint packages/core/src packages/runtime/src",
-    "format": "biome format --write .",
-    "package": "node scripts/package.mjs",
-    "cli": "pnpm --filter @grok-code/cli dev"
+    "format": "biome format --write ."
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
