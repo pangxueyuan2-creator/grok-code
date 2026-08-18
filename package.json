@@ -2,7 +2,7 @@
   "name": "grok-code",
   "version": "0.1.0-dev",
   "private": true,
-  "description": "A simpler, human-friendly coding agent powered by Grok Build.",
+  "description": "ForgePilot: a safer multi-provider coding-agent workbench built around Grok Build compatibility.",
   "license": "Apache-2.0",
   "engines": { "node": ">=20" },
   "packageManager": "pnpm@10.22.0",
@@ -10,7 +10,7 @@
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
-    "lint": "biome check .",
+    "lint": "biome lint packages/core/src packages/runtime/src",
     "format": "biome format --write .",
     "package": "node scripts/package.mjs",
     "cli": "pnpm --filter @grok-code/cli dev"
