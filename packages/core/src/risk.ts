@@ -16,38 +16,38 @@ export interface RiskAssessment {
 }
 
 const CRITICAL_COMMANDS = [
-  /^rms+-rf?s+//,
-  /^sudo/,
-  /^shutdown/,
-  /^reboot/,
-  /^formats+[a-z]:/i,
-  /^dels+/ss+/qs+[a-z]:\\/i,
-  /^chmods+-R?s+777s+//,
-  /gits+pushs+.*(--force|:s*$)/,
-  /^gits+resets+--hard/,
-  /^gits+cleans+-f/,
+  /^rm\s+-rf?\s+\//,
+  /^sudo\b/,
+  /^shutdown\b/,
+  /^reboot\b/,
+  /^format\s+[a-z]:/i,
+  /^del\s+\/s\s+\/q\s+[a-z]:\\/i,
+  /^chmod\s+-R?\s+777\s+\//,
+  /git\s+push\s+.*(--force|:\s*$)/,
+  /^git\s+reset\s+--hard/,
+  /^git\s+clean\s+-f/,
 ];
 
 const HIGH_COMMANDS = [
-  /rm/,
-  /del/i,
-  /^rd/i,
-  /^rmdir/i,
-  /gits+(reset|clean|rebase)/,
-  /scp/,
-  /ssh/,
-  /openssl/,
+  /\brm\b/,
+  /\bdel\b/i,
+  /^rd\b/i,
+  /^rmdir\b/i,
+  /\bgit\s+(reset|clean|rebase)\b/,
+  /\bscp\b/,
+  /\bssh\b/,
+  /\bopenssl\b/,
   /--force/,
-  /kill/,
-  /wget/,
-  /curl/,
+  /\bkill\b/,
+  /\bwget\b/,
+  /\bcurl\b/,
 ];
 
 const MEDIUM_COMMANDS = [
-  /(npm|pnpm|yarn|pip|pip3|cargo|gem|go)s+(install|add|update|upgrade)/,
-  /gits+(checkout|switch|stash|merge|push)/,
-  /mkdir/,
-  /move|mv/,
+  /\b(npm|pnpm|yarn|pip|pip3|cargo|gem|go)\s+(install|add|update|upgrade)\b/,
+  /\bgit\s+(checkout|switch|stash|merge|push)\b/,
+  /\bmkdir\b/,
+  /\bmove\b|\bmv\b/,
 ];
 
 /** Classify a shell command. Returns CRITICAL if clearly dangerous. */
@@ -84,8 +84,8 @@ const WRITE_TOOL_IDS = new Set([
 export function classifyTool(toolName: string, rawInput?: Record<string, unknown>): RiskAssessment {
   if (toolName === "run_terminal_cmd") {
     const cmd = String(
-      (rawInput as Record<string, unknown> | undefined)?.["command"] ??
-        (rawInput as Record<string, unknown> | undefined)?.["cmd"] ??
+      (rawInput as Record<string, unknown> | undefined)?.command ??
+        (rawInput as Record<string, unknown> | undefined)?.cmd ??
         "",
     );
     return classifyCommand(cmd);
