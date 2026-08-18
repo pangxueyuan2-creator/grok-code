@@ -117,7 +117,7 @@ export function updateStep(
  * the agent works.
  */
 export function seedSteps(request: string): TaskStep[] {
-  const base = [
+  const base: TaskStep[] = [
     { id: "understand", title: "理解项目", state: "pending" },
     { id: "locate", title: "找到相关代码", state: "pending" },
     { id: "implement", title: "实现修改", state: "pending" },
