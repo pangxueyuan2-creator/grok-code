@@ -94,6 +94,7 @@ export function describePermissionMode(mode: PermissionModeName): string {
     case "FULL":
       return "尽可能自主运行，系统级操作仍会被拦截";
   }
+  throw new Error(`Unknown permission mode: ${String(mode)}`);
 }
 
 export function describeRisk(level: RiskLevel): string {
@@ -107,4 +108,5 @@ export function describeRisk(level: RiskLevel): string {
     case "CRITICAL":
       return "危险";
   }
+  throw new Error(`Unknown risk level: ${String(level)}`);
 }
