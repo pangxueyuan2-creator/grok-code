@@ -23,7 +23,7 @@ describe("provider profiles", () => {
     ).toThrow(/baseUrl/);
   });
 
-  it("allows loopback HTTP but rejects remote plaintext transport", () => {
+  it("allows IPv4 and IPv6 loopback HTTP but rejects remote plaintext transport", () => {
     const local = createProviderProfile({
       id: "ollama",
       kind: "openai-compatible",
@@ -31,8 +31,16 @@ describe("provider profiles", () => {
       baseUrl: "http://127.0.0.1:11434/v1",
       apiKeyEnv: "OLLAMA_API_KEY",
     });
+    const localIpv6 = createProviderProfile({
+      id: "ollama-ipv6",
+      kind: "openai-compatible",
+      model: "qwen3-coder",
+      baseUrl: "http://[::1]:11434/v1",
+      apiKeyEnv: "OLLAMA_API_KEY",
+    });
 
     expect(local.baseUrl).toBe("http://127.0.0.1:11434/v1");
+    expect(localIpv6.baseUrl).toBe("http://[::1]:11434/v1");
     expect(() =>
       createProviderProfile({
         id: "unsafe",
