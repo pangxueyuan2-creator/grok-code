@@ -35,10 +35,14 @@ describe("change summary", () => {
 });
 
 describe("normalizePath", () => {
-  it("converts windows separators and drive prefixes", () => {
-    expect(normalizePath("C:\\repo\\src\\a.ts")).toBe("src/a.ts");
+  it("converts Windows separators and strips an explicit repo root", () => {
+    expect(normalizePath("C:\\repo\\src\\a.ts", "C:\\repo")).toBe("src/a.ts");
+    expect(normalizePath("c:\\REPO\\src\\a.ts", "C:\\repo")).toBe("src/a.ts");
   });
-  it("keeps posix paths", () => {
+  it("normalizes an absolute Windows path without guessing the repo directory", () => {
+    expect(normalizePath("C:\\repo\\src\\a.ts")).toBe("repo/src/a.ts");
+  });
+  it("keeps POSIX relative paths", () => {
     expect(normalizePath("src/a.ts")).toBe("src/a.ts");
   });
 });
