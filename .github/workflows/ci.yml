@@ -23,9 +23,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
+      # The initial scaffold did not commit pnpm-lock.yaml. Do not claim a
+      # frozen install until a generated lockfile is reviewed and committed.
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
       - name: Lint
         run: pnpm lint
       - name: Typecheck
