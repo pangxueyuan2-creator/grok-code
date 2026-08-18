@@ -61,8 +61,11 @@ function validateBaseUrl(value: string): string {
     throw new Error("Provider base URL must not contain embedded credentials.");
   }
 
+  // WHATWG URL.hostname preserves brackets around IPv6 literals ("[::1]").
+  // Treat both IPv4 and IPv6 loopback endpoints as local so self-hosted runtimes
+  // can use plaintext HTTP without accidentally allowing remote plaintext traffic.
   const isLoopback =
-    url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "::1";
+    url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "[::1]";
   if (url.protocol !== "https:" && !(url.protocol === "http:" && isLoopback)) {
     throw new Error("Provider base URL must use HTTPS; HTTP is allowed only for loopback endpoints.");
   }
