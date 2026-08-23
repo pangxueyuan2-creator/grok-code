@@ -211,8 +211,7 @@ export async function dispatchTask(
 ): Promise<string> {
   if (options.providerId !== "xai") {
     throw new Error(
-      `Provider ${options.providerId} has an inference adapter, but autonomous coding-tool dispatch is not implemented yet. ` +
-        "Use --provider xai for the Grok Build execution path, or use forgepilot plan to inspect routing.",
+      `Provider ${options.providerId} has an inference adapter, but autonomous coding-tool dispatch is not implemented yet. Use --provider xai for the Grok Build execution path, or use forgepilot plan to inspect routing.`,
     );
   }
 
