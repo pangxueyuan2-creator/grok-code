@@ -6,6 +6,7 @@ coverage/
 .env.*
 !.env.example
 .grok-code-dev/
+.forgepilot/
 *.log
 .vitest/
 .DS_Store
