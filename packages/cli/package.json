@@ -1,6 +1,6 @@
 {
   "name": "@grok-code/cli",
-  "version": "0.1.0-dev",
+  "version": "0.1.0",
   "description": "ForgePilot command line: run, resume, and inspect coding-agent tasks.",
   "license": "Apache-2.0",
   "type": "module",

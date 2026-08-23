@@ -1,6 +1,6 @@
 {
   "name": "grok-code",
-  "version": "0.1.0-dev",
+  "version": "0.1.0",
   "private": true,
   "description": "ForgePilot: a safer multi-provider coding-agent control plane.",
   "license": "Apache-2.0",
