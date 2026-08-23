@@ -6,3 +6,7 @@ export * from "./parse.js";
 export * from "./spawn.js";
 export * from "./headless.js";
 export * from "./discover.js";
+export * from "./acp.js";
+export * from "./windows.js";
+export * from "./worktree.js";
+export * from "./adapters/index.js";

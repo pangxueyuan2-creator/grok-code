@@ -1,9 +1,6 @@
 export type ProviderKind = "xai" | "openai" | "anthropic" | "openai-compatible";
 
-export type ProviderProtocol =
-  | "openai-compatible"
-  | "openai-responses"
-  | "anthropic-messages";
+export type ProviderProtocol = "openai-compatible" | "openai-responses" | "anthropic-messages";
 
 export interface ProviderProfile {
   readonly id: string;
@@ -28,7 +25,8 @@ const ENV_NAME = /^[A-Z_][A-Z0-9_]*$/;
 const ID = /^[a-z0-9][a-z0-9._-]*$/;
 
 const BUILTIN_DEFAULTS: Record<
-  Exclude<ProviderKind, "openai-compatible">,
+  Exclude<ProviderKind, "openai-compatible">
+  ,
   Pick<ProviderProfile, "baseUrl" | "apiKeyEnv" | "protocol">
 > = {
   xai: {
@@ -53,7 +51,6 @@ function validateBaseUrl(value: string): string {
   try {
     url = new URL(value);
   } catch {
-    // Do not echo the raw value: malformed URLs can themselves contain credentials.
     throw new Error("Invalid provider base URL.");
   }
 
@@ -61,9 +58,6 @@ function validateBaseUrl(value: string): string {
     throw new Error("Provider base URL must not contain embedded credentials.");
   }
 
-  // WHATWG URL.hostname preserves brackets around IPv6 literals ("[::1]").
-  // Treat both IPv4 and IPv6 loopback endpoints as local so self-hosted runtimes
-  // can use plaintext HTTP without accidentally allowing remote plaintext traffic.
   const isLoopback =
     url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "[::1]";
   if (url.protocol !== "https:" && !(url.protocol === "http:" && isLoopback)) {
@@ -71,6 +65,15 @@ function validateBaseUrl(value: string): string {
   }
 
   return url.toString().replace(/\/$/, "");
+}
+
+export function isLoopbackUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "[::1]";
+  } catch {
+    return false;
+  }
 }
 
 export function createProviderProfile(input: ProviderProfileInput): ProviderProfile {
@@ -126,4 +129,19 @@ export class ProviderRegistry {
   list(): readonly ProviderProfile[] {
     return [...this.#profiles.values()].sort((a, b) => a.id.localeCompare(b.id));
   }
+}
+
+export function createBuiltinRegistry(): ProviderRegistry {
+  return new ProviderRegistry([
+    createProviderProfile({ id: "xai", kind: "xai", model: "grok-4.5" }),
+    createProviderProfile({ id: "openai", kind: "openai", model: "gpt-4.1" }),
+    createProviderProfile({ id: "anthropic", kind: "anthropic", model: "claude-sonnet-4-5" }),
+    createProviderProfile({
+      id: "local",
+      kind: "openai-compatible",
+      model: "local-coder",
+      baseUrl: "http://127.0.0.1:11434/v1",
+      apiKeyEnv: "LOCAL_API_KEY",
+    }),
+  ]);
 }

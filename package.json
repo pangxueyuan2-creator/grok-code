@@ -2,15 +2,15 @@
   "name": "grok-code",
   "version": "0.1.0-dev",
   "private": true,
-  "description": "ForgePilot: a safer multi-provider coding-agent workbench built around Grok Build compatibility.",
+  "description": "ForgePilot: a safer multi-provider coding-agent control plane.",
   "license": "Apache-2.0",
   "engines": { "node": ">=20" },
   "packageManager": "pnpm@10.22.0",
   "scripts": {
     "build": "pnpm -r build",
     "test": "pnpm -r test",
-    "typecheck": "pnpm --filter @grok-code/core build && pnpm --filter @grok-code/runtime typecheck",
-    "lint": "biome lint packages/core/src packages/runtime/src",
+    "typecheck": "pnpm --filter @grok-code/core build && pnpm --filter @grok-code/runtime build && pnpm --filter @grok-code/cli typecheck",
+    "lint": "biome lint packages/core/src packages/runtime/src packages/cli/src",
     "format": "biome format --write ."
   },
   "devDependencies": {
