@@ -1,6 +1,6 @@
 {
   "name": "@grok-code/core",
-  "version": "0.1.0-dev",
+  "version": "0.1.0",
   "description": "ForgePilot domain model: tasks, providers, journal, policy, verification.",
   "license": "Apache-2.0",
   "type": "module",
