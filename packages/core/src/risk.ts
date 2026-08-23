@@ -1,75 +1,82 @@
 /**
- * Risk classification shared by the permission system and the UI. The mapping
- * from grok tool ids / commands to risk levels is intentionally conservative:
- * when in doubt, escalate.
+ * Risk classification shared by the permission system and the UI.
+ * Conservative: when in doubt, escalate. Windows and POSIX both covered.
  */
 
 export type RiskLevel = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
-/** A grok tool or permission subject with its assessed risk. */
 export interface RiskAssessment {
   level: RiskLevel;
-  /** Why it is classified this way, for the permission prompt. */
   reason: string;
-  /** What would NOT be affected (shown to reassure). */
   notAffecting?: string;
 }
 
 const CRITICAL_COMMANDS = [
-  /^rms+-rf?s+//,
-  /^sudo/,
-  /^shutdown/,
-  /^reboot/,
-  /^formats+[a-z]:/i,
-  /^dels+/ss+/qs+[a-z]:\\/i,
-  /^chmods+-R?s+777s+//,
-  /gits+pushs+.*(--force|:s*$)/,
-  /^gits+resets+--hard/,
-  /^gits+cleans+-f/,
+  /^rm\s+-rf?\s+\//,
+  /^sudo\b/,
+  /^shutdown\b/,
+  /^reboot\b/,
+  /^format\s+[a-z]:/i,
+  /^del\s+\/s\s+\/q\s+[a-z]:\\/i,
+  /^chmod\s+-R?\s+777\s+\//,
+  /git\s+push\s+.*(--force|:\s*$)/,
+  /^git\s+reset\s+--hard/,
+  /^git\s+clean\s+-f/,
+  /Stop-Computer\b/i,
+  /Restart-Computer\b/i,
+  /Format-Volume\b/i,
+  /Remove-Item\s+.*-Recurse.*(\/|[A-Za-z]:\\)/i,
+  /rd\s+\/s\s+\/q\s+[a-z]:/i,
 ];
 
 const HIGH_COMMANDS = [
-  /rm/,
-  /del/i,
-  /^rd/i,
-  /^rmdir/i,
-  /gits+(reset|clean|rebase)/,
-  /scp/,
-  /ssh/,
-  /openssl/,
+  /\brm\b/,
+  /\bdel\b/i,
+  /^rd\b/i,
+  /^rmdir\b/i,
+  /\bgit\s+(reset|clean|rebase)\b/,
+  /\bscp\b/,
+  /\bssh\b/,
+  /\bopenssl\b/,
   /--force/,
-  /kill/,
-  /wget/,
-  /curl/,
+  /\bkill\b/,
+  /\bwget\b/,
+  /\bcurl\b/,
+  /Remove-Item\b/i,
+  /Invoke-WebRequest\b/i,
+  /Invoke-Expression\b/i,
+  /\biex\b/i,
 ];
 
 const MEDIUM_COMMANDS = [
-  /(npm|pnpm|yarn|pip|pip3|cargo|gem|go)s+(install|add|update|upgrade)/,
-  /gits+(checkout|switch|stash|merge|push)/,
-  /mkdir/,
-  /move|mv/,
+  /\b(npm|pnpm|yarn|pip|pip3|cargo|gem|go)\s+(install|add|update|upgrade)\b/,
+  /\bgit\s+(checkout|switch|stash|merge|push)\b/,
+  /\bmkdir\b/,
+  /\bmove\b|\bmv\b/,
+  /New-Item\b/i,
+  /Copy-Item\b/i,
+  /Move-Item\b/i,
 ];
 
-/** Classify a shell command. Returns CRITICAL if clearly dangerous. */
 export function classifyCommand(command: string): RiskAssessment {
   if (CRITICAL_COMMANDS.some((re) => re.test(command))) {
     return {
       level: "CRITICAL",
-      reason: "可能影响系统安全或破坏 Git 历史",
-      notAffecting: "不会在 SAFE / AUTO 模式下自动执行",
+      reason: "May affect system safety or rewrite Git history",
+      notAffecting: "Never auto-executed in SAFE or AUTO mode",
     };
   }
   if (HIGH_COMMANDS.some((re) => re.test(command))) {
     return {
       level: "HIGH",
-      reason: "可能删除文件或改写 Git 状态",
-      notAffecting: "源代码之外的内容不受影响时按规则提示",
+      reason: "May delete files or rewrite Git state",
+      notAffecting: "Does not change files outside the assessed path",
     };
   }
   if (MEDIUM_COMMANDS.some((re) => re.test(command))) {
-    return { level: "MEDIUM", reason: "安装依赖或改变工作区状态" };
+    return { level: "MEDIUM", reason: "Installs dependencies or changes workspace state" };
   }
-  return { level: "LOW", reason: "只读或低影响命令" };
+  return { level: "LOW", reason: "Read-only or low-impact command" };
 }
 
 const WRITE_TOOL_IDS = new Set([
@@ -80,23 +87,18 @@ const WRITE_TOOL_IDS = new Set([
   "run_terminal_cmd",
 ]);
 
-/** Classify a grok tool id (toolName from streaming-json / ACP). */
 export function classifyTool(toolName: string, rawInput?: Record<string, unknown>): RiskAssessment {
   if (toolName === "run_terminal_cmd") {
-    const cmd = String(
-      (rawInput as Record<string, unknown> | undefined)?.["command"] ??
-        (rawInput as Record<string, unknown> | undefined)?.["cmd"] ??
-        "",
-    );
+    const cmd = String(rawInput?.command ?? rawInput?.cmd ?? "");
     return classifyCommand(cmd);
   }
   if (toolName === "delete_files") {
-    return { level: "HIGH", reason: "删除项目文件", notAffecting: "不修改 Git 历史" };
+    return { level: "HIGH", reason: "Deletes project files", notAffecting: "Does not rewrite Git history" };
   }
   if (WRITE_TOOL_IDS.has(toolName)) {
-    return { level: "MEDIUM", reason: "修改项目源代码" };
+    return { level: "MEDIUM", reason: "Modifies project source" };
   }
-  return { level: "LOW", reason: "只读操作" };
+  return { level: "LOW", reason: "Read-only operation" };
 }
 
 export const RISK_ORDER: Record<RiskLevel, number> = {

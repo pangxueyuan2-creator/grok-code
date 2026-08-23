@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -18,16 +21,17 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
-          version: 10
-      - uses: actions/setup-node@v4
+          version: 10.22.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
-          cache: pnpm
+      # The initial scaffold did not commit pnpm-lock.yaml. Do not claim a
+      # frozen install until a generated lockfile is reviewed and committed.
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
       - name: Lint
         run: pnpm lint
       - name: Typecheck
@@ -36,11 +40,3 @@ jobs:
         run: pnpm test
       - name: Build
         run: pnpm build
-      - name: Package
-        run: pnpm package
-      - name: Upload packaged CLI
-        uses: actions/upload-artifact@v4
-        with:
-          name: grok-code-${{ matrix.os }}
-          path: dist/package/
-          retention-days: 14

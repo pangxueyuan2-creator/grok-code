@@ -168,11 +168,11 @@ export class AcpClient extends EventEmitter {
     const outcome =
       decision === "approve" ? { outcome: "approved" } : { outcome: "denied" };
     this.child.stdin?.write(
-      JSON.stringify({
+      `${JSON.stringify({
         jsonrpc: "2.0",
         id: req.requestId,
         result: { outcome },
-      }) + "\n",
+      })}\n`,
     );
   }
 
@@ -230,9 +230,7 @@ export class AcpClient extends EventEmitter {
     const id = this.nextId++;
     return new Promise((resolve, reject) => {
       this.pending.set(id, { resolve, reject });
-      this.child.stdin?.write(
-        JSON.stringify({ jsonrpc: "2.0", id, method, params }) + "\n",
-      );
+      this.child.stdin?.write(`${JSON.stringify({ jsonrpc: "2.0", id, method, params })}\n`);
     });
   }
 

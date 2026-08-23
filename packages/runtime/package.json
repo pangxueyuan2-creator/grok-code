@@ -1,7 +1,7 @@
 {
   "name": "@grok-code/runtime",
   "version": "0.1.0-dev",
-  "description": "Thin Grok Build integration: headless runner, ACP client, environment preparation.",
+  "description": "ForgePilot runtime: Grok Build integration, protocol adapters, Windows helpers.",
   "license": "Apache-2.0",
   "type": "module",
   "main": "dist/index.js",

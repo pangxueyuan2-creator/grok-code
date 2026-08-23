@@ -1,12 +1,15 @@
-Grok Code
-Copyright 2026 The Grok Code contributors
+ForgePilot
+Copyright 2026 The ForgePilot contributors
 
-Grok Code is an independent project. It is not affiliated with, endorsed by,
-or an official product of xAI Corp., SpaceXAI, Anthropic, or the Grok Build
-project.
+ForgePilot is an independent project. It is not affiliated with, endorsed by,
+or an official product of xAI Corp., SpaceXAI, OpenAI, Anthropic, or the Grok
+Build project.
 
-Grok Code integrates with Grok Build (https://github.com/xai-org/grok-build),
-Apache-2.0 licensed, Copyright 2023-2026 SpaceXAI, through Grok Build's
-public command-line and Agent Client Protocol (ACP) interfaces. Grok Code
-does not redistribute Grok Build source code. See
+This repository was originally scaffolded under the working name "Grok Code";
+some internal package scopes still use @grok-code/* during the staged rename.
+
+ForgePilot integrates with Grok Build (https://github.com/xai-org/grok-build),
+Apache-2.0 licensed, Copyright 2023-2026 SpaceXAI, through Grok Build's public
+command-line and Agent Client Protocol (ACP) interfaces. ForgePilot does not
+currently redistribute the Grok Build source tree. See
 docs/UPSTREAM_LICENSE_REVIEW.md for the complete license review.
