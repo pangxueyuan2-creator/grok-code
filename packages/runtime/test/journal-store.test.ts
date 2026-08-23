@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -49,6 +49,7 @@ describe("JournalStore", () => {
     const root = mkdtempSync(join(tmpdir(), "forgepilot-journal-"));
     roots.push(root);
     const store = new JournalStore(root);
+    mkdirSync(root, { recursive: true });
     writeFileSync(store.pathFor("task-3"), "not-json\n", { encoding: "utf8", flag: "w" });
     expect(() => store.load("task-3")).toThrow(/Corrupt journal/);
   });
