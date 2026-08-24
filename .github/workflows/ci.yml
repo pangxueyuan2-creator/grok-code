@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/core-and-runtime]
   pull_request:
 
 permissions:
@@ -15,6 +15,7 @@ concurrency:
 jobs:
   quality:
     name: lint + typecheck + test (${{ matrix.os }})
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -28,10 +29,10 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
-      # The initial scaffold did not commit pnpm-lock.yaml. Do not claim a
-      # frozen install until a generated lockfile is reviewed and committed.
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile
       - name: Lint
         run: pnpm lint
       - name: Typecheck

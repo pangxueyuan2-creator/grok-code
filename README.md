@@ -1,10 +1,14 @@
 # ForgePilot
 
+[![CI](https://github.com/pangxueyuan2-creator/grok-code/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/pangxueyuan2-creator/grok-code/actions/workflows/ci.yml)
+
 **A safer coding-agent control plane with real Grok Build dispatch, durable resume, and multi-provider protocol foundations.**
 
 > The project currently lives in the `grok-code` repository while the public name settles. Package scopes still use `@grok-code/*` so existing imports do not break.
 
 ForgePilot is an independent control plane for long-running, user-controlled coding work. It is not a telemetry-off fork of Grok Build.
+
+**Current release:** `v0.1.0` · **Runtime status:** Grok Build/xAI autonomous dispatch is implemented; direct provider-native coding loops remain intentionally unsupported until their tool loops are complete.
 
 ## What works today
 
@@ -42,7 +46,7 @@ The direct-provider adapters are real transport implementations, but their provi
 ## Quick start
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 pnpm test
 
 # Inspect routing only. No model call, no file change.
@@ -108,18 +112,19 @@ Unknown tools fail closed. Silent provider switching is forbidden.
 - [Windows](docs/WINDOWS.md)
 - [Grok Build compatibility](docs/COMPATIBILITY.md)
 - [Upstream license review](docs/UPSTREAM_LICENSE_REVIEW.md)
+- [Roadmap](https://github.com/pangxueyuan2-creator/grok-code/issues/2)
 
 ## Development
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 pnpm lint
 pnpm typecheck
 pnpm test
 pnpm build
 ```
 
-CI runs the quality gate on Ubuntu, Windows, and macOS.
+CI uses the committed `pnpm-lock.yaml` with a frozen install and runs the quality gate on Ubuntu, Windows, and macOS.
 
 ## License
 
