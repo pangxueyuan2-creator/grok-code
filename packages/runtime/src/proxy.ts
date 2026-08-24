@@ -13,9 +13,12 @@ export interface ProxySettings {
  * on machines that require a proxy (verified: Windows system proxy
  * 127.0.0.1:7897 with no env vars -> grok hangs forever on auth refresh).
  */
-export function detectProxy(platform: NodeJS.Platform = process.platform): ProxySettings {
+export function detectProxy(
+  platform: NodeJS.Platform = process.platform,
+  env: NodeJS.ProcessEnv = process.env,
+): ProxySettings {
   const envServer =
-    process.env["HTTPS_PROXY"] ?? process.env["https_proxy"] ?? process.env["HTTP_PROXY"] ?? process.env["http_proxy"];
+    env["HTTPS_PROXY"] ?? env["https_proxy"] ?? env["HTTP_PROXY"] ?? env["http_proxy"];
   if (envServer) {
     return { enabled: true, server: envServer, source: "env" };
   }
@@ -41,21 +44,31 @@ export function detectProxy(platform: NodeJS.Platform = process.platform): Proxy
 }
 
 /** Environment additions for spawning grok (never includes secrets). */
-export function buildGrokEnv(base: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
+export function buildGrokEnv(
+  base: NodeJS.ProcessEnv = process.env,
+  platform: NodeJS.Platform = process.platform,
+): NodeJS.ProcessEnv {
   const env: NodeJS.ProcessEnv = {
     ...base,
     GROK_DISABLE_AUTOUPDATER: "1",
   };
-  // Forward proxy only if the child would otherwise have none.
-  if (!env["HTTP_PROXY"] && !env["http_proxy"]) {
-    const proxy = detectProxy();
-    if (proxy.enabled && proxy.server) {
-      const url = /^[a-z]+:\/\//i.test(proxy.server) ? proxy.server : `http://${proxy.server}`;
-      env["HTTP_PROXY"] = url;
-      env["HTTPS_PROXY"] = url;
-      const noProxy = env["NO_PROXY"] ?? env["no_proxy"] ?? "localhost,127.0.0.1,::1";
-      env["NO_PROXY"] = noProxy;
-    }
+
+  const explicitHttps = env["HTTPS_PROXY"] ?? env["https_proxy"];
+  const explicitHttp = env["HTTP_PROXY"] ?? env["http_proxy"];
+  const detected = explicitHttps || explicitHttp ? detectProxy(platform, env) : detectProxy(platform, base);
+
+  if (detected.enabled && detected.server) {
+    const url = /^[a-z]+:\/\//i.test(detected.server) ? detected.server : `http://${detected.server}`;
+
+    // Grok may use both HTTPS/WSS and HTTP endpoints internally. If the parent
+    // only provided one proxy variable, mirror it into the missing counterpart
+    // without overwriting an explicitly distinct proxy value.
+    if (!env["HTTP_PROXY"] && !env["http_proxy"]) env["HTTP_PROXY"] = url;
+    if (!env["HTTPS_PROXY"] && !env["https_proxy"]) env["HTTPS_PROXY"] = url;
+
+    const noProxy = env["NO_PROXY"] ?? env["no_proxy"] ?? "localhost,127.0.0.1,::1";
+    env["NO_PROXY"] = noProxy;
   }
+
   return env;
 }
