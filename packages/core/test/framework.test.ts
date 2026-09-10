@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  JOURNAL_SCHEMA_VERSION,
   TaskJournal,
   bindTaskProvider,
   canMarkCompleted,
@@ -42,6 +43,39 @@ describe("ForgePilot control plane", () => {
     expect(event.payload.thought).toBeUndefined();
     expect(event.payload.apiKey).toBeUndefined();
     expect(String(event.payload.summary)).toMatch(/redacted/);
+  });
+
+  it("strips credential key variants and sanitizes replayed journals", () => {
+    const event = new TaskJournal().append("t1", "tool_result", {
+      PASSWORD: "opaque-value-that-would-not-match-a-secret-pattern",
+      client_secret: "another-opaque-value",
+      "access-token": "third-opaque-value",
+      nested: {
+        Authorization: "custom-auth-value",
+        secretary: "keep-me",
+      },
+      reasoningMode: "brief",
+    });
+
+    expect(event.payload).toEqual({
+      nested: { secretary: "keep-me" },
+      reasoningMode: "brief",
+    });
+
+    const replayed = TaskJournal.replay([
+      {
+        schema: JOURNAL_SCHEMA_VERSION,
+        seq: 1,
+        ts: "2026-09-10T00:00:00.000Z",
+        taskId: "legacy",
+        type: "tool_result",
+        payload: {
+          Password: "legacy-opaque-value",
+          safe: "ok",
+        },
+      },
+    ]);
+    expect(replayed.events[0]?.payload).toEqual({ safe: "ok" });
   });
 
   it("refuses completion without verification", () => {
