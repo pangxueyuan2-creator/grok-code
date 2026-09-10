@@ -25,15 +25,31 @@ export interface JournalEvent {
 }
 
 const STRIP_KEYS = new Set([
-  "apiKey",
-  "api_key",
+  "apikey",
+  "apitoken",
   "authorization",
+  "accesstoken",
+  "refreshtoken",
+  "idtoken",
+  "authtoken",
   "token",
+  "password",
+  "passwd",
+  "secret",
+  "clientsecret",
+  "secretkey",
+  "credentials",
+  "cookie",
+  "setcookie",
   "thought",
-  "chainOfThought",
-  "privateThought",
+  "chainofthought",
+  "privatethought",
   "reasoning",
 ]);
+
+function shouldStripKey(key: string): boolean {
+  return STRIP_KEYS.has(key.replace(/[^a-z0-9]/gi, "").toLowerCase());
+}
 
 function sanitizeValue(value: unknown): unknown {
   if (typeof value === "string") return redactSecrets(value);
@@ -41,7 +57,7 @@ function sanitizeValue(value: unknown): unknown {
   if (value && typeof value === "object") {
     const out: Record<string, unknown> = {};
     for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
-      if (STRIP_KEYS.has(key)) continue;
+      if (shouldStripKey(key)) continue;
       out[key] = sanitizeValue(child);
     }
     return out;
@@ -54,7 +70,10 @@ export class TaskJournal {
   #seq = 0;
 
   constructor(events: readonly JournalEvent[] = []) {
-    this.#events = events.map((event) => ({ ...event, payload: event.payload }));
+    this.#events = events.map((event) => ({
+      ...event,
+      payload: sanitizeValue(event.payload) as Record<string, unknown>,
+    }));
     this.#seq = events.reduce((max, event) => Math.max(max, event.seq), 0);
   }
 
